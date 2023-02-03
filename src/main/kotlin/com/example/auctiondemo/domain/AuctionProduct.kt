@@ -1,9 +1,10 @@
 package com.example.auctiondemo.domain
 
 import com.google.type.DateTime
+import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
-import javax.persistence.Id
+import java.sql.Timestamp
 
 @Document
 data class AuctionProduct (
@@ -12,8 +13,8 @@ data class AuctionProduct (
     val name: String,
     val description: String,
     val startPrice: BigDecimal,
-    var currentBidOwner: String,
-    var currentHighestBid: BigDecimal,
-    var endedDateTime: DateTime,
+    var currentBidOwner: String?,
+    var currentHighestBid: BigDecimal?,
+    var endedDateTime: Timestamp?,
     val status: BidStatus
 )
