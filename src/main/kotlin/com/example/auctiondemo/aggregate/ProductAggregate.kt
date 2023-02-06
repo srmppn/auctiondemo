@@ -100,20 +100,23 @@ class ProductAggregate() {
 //        } else {
 //            return "Sorry, an auction for this product is already ended a while ago"
 //        }
-        val date = productRepository.findById(command.productId).block()!!.endedDateTime
+        val product = productRepository.findById(command.productId).block()!!
+        val date = product.endedDateTime
         if (date == null){
             return "Sorry, an auction for this product is not started yet"
         } else if (date.before(Date())) {
             return "Sorry, an auction for this product is already ended a while ago"
         } else {
-            AggregateLifecycle.apply(
-                BidProductEvent(
-                    command.productId,
-                    command.currentBidOwner,
-                    command.currentHighestBid
-                )
-            )
-            return "You bid a product"
+            val currentHighestBid = product.currentHighestBid
+            if(currentHighestBid==null){
+                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
+                return "You are the first to bid a product"
+            } else if (currentHighestBid>=command.currentHighestBid) {
+                return "The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
+            } else {
+                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
+                return "You are successfully bid a product. You are now the highest!"
+            }
         }
     }
 
