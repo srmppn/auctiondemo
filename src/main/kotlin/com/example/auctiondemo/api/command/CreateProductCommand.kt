@@ -1,11 +1,14 @@
-package com.example.auctiondemo.command
+package com.example.auctiondemo.api.command
 
 import com.example.auctiondemo.domain.BidStatus
+import com.google.type.DateTime
 import org.axonframework.modelling.command.TargetAggregateIdentifier
 import java.math.BigDecimal
 
-data class StartAuctionCommand(
+data class CreateProductCommand(
     @TargetAggregateIdentifier
     val productId: String,
-    val durationMin: Long
+    val name: String,
+    val description: String,
+    val startPrice: BigDecimal
 )

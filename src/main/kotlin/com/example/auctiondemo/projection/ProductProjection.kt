@@ -1,8 +1,8 @@
 package com.example.auctiondemo.projection
 
-import com.example.auctiondemo.command.BidProductEvent
-import com.example.auctiondemo.command.CreateProductEvent
-import com.example.auctiondemo.command.StartAuctionEvent
+import com.example.auctiondemo.api.command.BidProductEvent
+import com.example.auctiondemo.api.command.CreateProductEvent
+import com.example.auctiondemo.api.command.StartAuctionEvent
 import com.example.auctiondemo.domain.AuctionProduct
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.eventhandling.EventHandler

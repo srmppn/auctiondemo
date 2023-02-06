@@ -1,4 +1,4 @@
-package com.example.auctiondemo.command
+package com.example.auctiondemo.api.command
 
 import com.example.auctiondemo.domain.BidStatus
 import com.google.type.DateTime

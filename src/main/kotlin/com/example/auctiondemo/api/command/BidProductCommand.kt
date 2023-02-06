@@ -1,4 +1,4 @@
-package com.example.auctiondemo.command
+package com.example.auctiondemo.api.command
 
 import org.axonframework.modelling.command.TargetAggregateIdentifier
 import java.math.BigDecimal

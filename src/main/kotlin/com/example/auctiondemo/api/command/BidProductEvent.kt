@@ -1,4 +1,4 @@
-package com.example.auctiondemo.command
+package com.example.auctiondemo.api.command
 
 import org.axonframework.serialization.Revision
 import java.math.BigDecimal

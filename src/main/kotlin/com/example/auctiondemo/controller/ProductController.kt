@@ -1,14 +1,18 @@
 package com.example.auctiondemo.controller
 
-import com.example.auctiondemo.command.BidProductCommand
-import com.example.auctiondemo.command.CreateProductCommand
-import com.example.auctiondemo.command.StartAuctionCommand
+import com.example.auctiondemo.api.command.BidProductCommand
+import com.example.auctiondemo.api.command.CreateProductCommand
+import com.example.auctiondemo.api.command.StartAuctionCommand
+import com.example.auctiondemo.api.query.FetchAllProducts
+import com.example.auctiondemo.domain.AuctionProduct
 import com.example.auctiondemo.dto.BidProductRequest
 import com.example.auctiondemo.dto.CreateProductRequest
 import com.example.auctiondemo.dto.StartAuctionRequest
 import org.axonframework.commandhandling.gateway.CommandGateway
+import org.axonframework.messaging.responsetypes.ResponseTypes
 import org.axonframework.queryhandling.QueryGateway
 import org.bson.types.ObjectId
+import org.reactivestreams.Publisher
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.CompletableFuture
@@ -23,8 +27,10 @@ class ProductController {
 
     @PostMapping("/product")
     fun createProduct(@RequestBody request: CreateProductRequest): CompletableFuture<String> {
-        return commandGateway.send<String>(CreateProductCommand(ObjectId.get().toHexString(),
-            request.name, request.description, request.startPrice))
+        return commandGateway.send<String>(
+            CreateProductCommand(ObjectId.get().toHexString(),
+            request.name, request.description, request.startPrice)
+        )
     }
 
     @PutMapping("/product/{productId}/start-auction")
@@ -37,10 +43,10 @@ class ProductController {
         return commandGateway.send<String>(BidProductCommand(productId, request.name, request.bidAmount))
     }
 
-//    @GetMapping("/products")
-//    fun getAllProducts(): Publisher<List<AuctionProduct>> {
-//        return
-//    }
+    @GetMapping("/products")
+    fun getAllProducts(): CompletableFuture<List<AuctionProduct>> {
+        return queryGateway.query(FetchAllProducts(), ResponseTypes.multipleInstancesOf(AuctionProduct:: class.java))
+    }
 //
 //    @GetMapping("/product/{productId}")
 //    fun getProductById(): Publisher<AuctionProduct> {

@@ -1,5 +1,6 @@
 package com.example.auctiondemo.aggregate
 
+import com.example.auctiondemo.api.command.*
 import com.example.auctiondemo.command.*
 import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
@@ -32,7 +33,8 @@ class ProductAggregate() {
 
     @CommandHandler
     constructor(command: CreateProductCommand) : this(){
-        AggregateLifecycle.apply(CreateProductEvent(
+        AggregateLifecycle.apply(
+            CreateProductEvent(
             command.productId,
             command.name,
             command.description,
@@ -40,7 +42,8 @@ class ProductAggregate() {
 //            null,
 //            null,
 //            null,
-            BidStatus.NONE))
+            BidStatus.NONE)
+        )
     }
 
     @EventSourcingHandler
