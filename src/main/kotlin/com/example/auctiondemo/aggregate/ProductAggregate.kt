@@ -1,7 +1,6 @@
 package com.example.auctiondemo.aggregate
 
 import com.example.auctiondemo.api.command.*
-import com.example.auctiondemo.command.*
 import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.commandhandling.CommandHandler
@@ -10,7 +9,6 @@ import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 import org.springframework.beans.factory.annotation.Autowired
-import reactor.kotlin.core.publisher.toMono
 import java.math.BigDecimal
 import java.util.Date
 
@@ -56,24 +54,16 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command : StartAuctionCommand) : String{
-////        println("---------------------------------------------" + command.productId)
-////        println("---------------------------------------------" + productRepository.findById(command.productId).block())
-////        var productStatus = productRepository.findById(command.productId).block()!!.status
-////        println("---------------------------------------------" + (productStatus == BidStatus.NONE))
-////        println("---------------------------------------------" + (productStatus.equals(BidStatus.NONE)))
-////        if (productStatus == BidStatus.NONE) {
-////            val endedDate = Timestamp(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
-        val endedDate = Date(System.currentTimeMillis() + (command.durationMin*60*1000))
-//        val endedDate = LocalDateTime.now().plusMinutes(command.durationMin)
-            AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate,  BidStatus.STARTED))
+        val status = productRepository.findById(command.productId).block()!!.status
+        if(status == BidStatus.NONE) {
+            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
+            AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
-//
-////        } else if (productStatus == BidStatus.STARTED) {
-////            return "Sorry. But the auction has already started at few time ago."
-////        }
-////        else {
-////            return "Sorry. But the auction has already started and ended."
-////        }
+        } else if (status == BidStatus.STARTED) {
+            return "Sorry, but this product is already and currently having an auction."
+        } else {
+            return "Sorry, this product's auction is already ended a while ago."
+        }
     }
 
     @EventSourcingHandler
@@ -85,8 +75,21 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command: BidProductCommand): String {
-        AggregateLifecycle.apply(BidProductEvent(command.productId, command.currentBidOwner, command.currentHighestBid))
-        return "You bid a product"
+        val status = productRepository.findById(command.productId).block()!!.status
+        if (status == BidStatus.STARTED) {
+            AggregateLifecycle.apply(
+                BidProductEvent(
+                    command.productId,
+                    command.currentBidOwner,
+                    command.currentHighestBid
+                )
+            )
+            return "You bid a product"
+        } else if (status == BidStatus.NONE) {
+            return "Sorry, an auction for this product is not started yet"
+        } else {
+            return "Sorry, an auction for this product is already ended a while ago"
+        }
     }
 
     @EventSourcingHandler
