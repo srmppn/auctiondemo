@@ -54,15 +54,25 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command : StartAuctionCommand) : String{
-        val status = productRepository.findById(command.productId).block()!!.status
-        if(status == BidStatus.NONE) {
+//        val status = productRepository.findById(command.productId).block()!!.status
+//        if(status == BidStatus.NONE) {
+//            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
+//            println(endedDate)
+//            AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
+//            return "Auction start!!"
+//        } else if (status == BidStatus.STARTED) {
+//            return "Sorry, but this product is already and currently having an auction."
+//        } else {
+//            return "Sorry, this product's auction is already ended a while ago."
+//        }
+        val date = productRepository.findById(command.productId).block()!!.endedDateTime
+        if(date == null){
             val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
+            println(endedDate)
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
-        } else if (status == BidStatus.STARTED) {
-            return "Sorry, but this product is already and currently having an auction."
         } else {
-            return "Sorry, this product's auction is already ended a while ago."
+            return "The auction is already started. I can't be auctioned twice nor thrice."
         }
     }
 
@@ -75,8 +85,27 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command: BidProductCommand): String {
-        val status = productRepository.findById(command.productId).block()!!.status
-        if (status == BidStatus.STARTED) {
+//        val status = productRepository.findById(command.productId).block()!!.status
+//        if (status == BidStatus.STARTED) {
+//            AggregateLifecycle.apply(
+//                BidProductEvent(
+//                    command.productId,
+//                    command.currentBidOwner,
+//                    command.currentHighestBid
+//                )
+//            )
+//            return "You bid a product"
+//        } else if (status == BidStatus.NONE) {
+//            return "Sorry, an auction for this product is not started yet"
+//        } else {
+//            return "Sorry, an auction for this product is already ended a while ago"
+//        }
+        val date = productRepository.findById(command.productId).block()!!.endedDateTime
+        if (date == null){
+            return "Sorry, an auction for this product is not started yet"
+        } else if (date.before(Date())) {
+            return "Sorry, an auction for this product is already ended a while ago"
+        } else {
             AggregateLifecycle.apply(
                 BidProductEvent(
                     command.productId,
@@ -85,10 +114,6 @@ class ProductAggregate() {
                 )
             )
             return "You bid a product"
-        } else if (status == BidStatus.NONE) {
-            return "Sorry, an auction for this product is not started yet"
-        } else {
-            return "Sorry, an auction for this product is already ended a while ago"
         }
     }
 
@@ -97,6 +122,10 @@ class ProductAggregate() {
         productId = event.productId
         currentBidOwner = event.currentBidOwner
         currentHighestBid = event.currentHighestBid
+    }
+
+    fun updateTime(productId: String){
+
     }
 
 }
