@@ -1,20 +1,17 @@
 package com.example.auctiondemo.aggregate
 
-import com.example.auctiondemo.command.CreateProductCommand
-import com.example.auctiondemo.command.CreateProductEvent
-import com.example.auctiondemo.command.StartAuctionCommand
-import com.example.auctiondemo.command.StartAuctionEvent
+import com.example.auctiondemo.command.*
 import com.example.auctiondemo.domain.BidStatus
-import com.google.type.DateTime
+import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.commandhandling.CommandHandler
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
+import org.springframework.beans.factory.annotation.Autowired
+import reactor.kotlin.core.publisher.toMono
 import java.math.BigDecimal
-import java.sql.Timestamp
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.util.Date
 
 @Aggregate
 class ProductAggregate() {
@@ -24,8 +21,14 @@ class ProductAggregate() {
     private lateinit var name: String
     private lateinit var description: String
     private lateinit var startPrice: BigDecimal
-    private lateinit var endedDateTime: Timestamp
+    private lateinit var endedDateTime: Date
+//    private var endedDateTime: Date
     private lateinit var status: BidStatus
+    private lateinit var currentBidOwner: String
+    private lateinit var currentHighestBid: BigDecimal
+
+    @Autowired
+    private lateinit var productRepository: AuctionProductRepository
 
     @CommandHandler
     constructor(command: CreateProductCommand) : this(){
@@ -50,9 +53,24 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command : StartAuctionCommand) : String{
-        val endedDate = Timestamp (System.currentTimeMillis() + (command.durationMin*60*1000))
-        AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate , BidStatus.STARTED))
-        return "Auction start!!"
+////        println("---------------------------------------------" + command.productId)
+////        println("---------------------------------------------" + productRepository.findById(command.productId).block())
+////        var productStatus = productRepository.findById(command.productId).block()!!.status
+////        println("---------------------------------------------" + (productStatus == BidStatus.NONE))
+////        println("---------------------------------------------" + (productStatus.equals(BidStatus.NONE)))
+////        if (productStatus == BidStatus.NONE) {
+////            val endedDate = Timestamp(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
+        val endedDate = Date(System.currentTimeMillis() + (command.durationMin*60*1000))
+//        val endedDate = LocalDateTime.now().plusMinutes(command.durationMin)
+            AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate,  BidStatus.STARTED))
+            return "Auction start!!"
+//
+////        } else if (productStatus == BidStatus.STARTED) {
+////            return "Sorry. But the auction has already started at few time ago."
+////        }
+////        else {
+////            return "Sorry. But the auction has already started and ended."
+////        }
     }
 
     @EventSourcingHandler
@@ -60,6 +78,19 @@ class ProductAggregate() {
         productId = event.productId
         endedDateTime = event.endedDateTime
         status = event.status
+    }
+
+    @CommandHandler
+    fun handle(command: BidProductCommand): String {
+        AggregateLifecycle.apply(BidProductEvent(command.productId, command.currentBidOwner, command.currentHighestBid))
+        return "You bid a product"
+    }
+
+    @EventSourcingHandler
+    fun on(event: BidProductEvent){
+        productId = event.productId
+        currentBidOwner = event.currentBidOwner
+        currentHighestBid = event.currentHighestBid
     }
 
 }

@@ -1,11 +1,11 @@
 package com.example.auctiondemo.command
 
-import com.example.auctiondemo.domain.BidStatus
 import org.axonframework.modelling.command.TargetAggregateIdentifier
 import java.math.BigDecimal
 
-data class StartAuctionCommand(
+data class BidProductCommand(
     @TargetAggregateIdentifier
     val productId: String,
-    val durationMin: Long
+    val currentBidOwner: String,
+    val currentHighestBid: BigDecimal
 )

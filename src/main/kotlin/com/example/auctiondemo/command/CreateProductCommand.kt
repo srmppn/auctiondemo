@@ -10,9 +10,5 @@ data class CreateProductCommand(
     val productId: String,
     val name: String,
     val description: String,
-    val startPrice: BigDecimal,
-//    val currentBidOwner: String?,
-//    val currentHighestBid: BigDecimal?,
-//    val endedDateTime: DateTime?,
-//    val status: BidStatus
+    val startPrice: BigDecimal
 )

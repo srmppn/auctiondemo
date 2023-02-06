@@ -1,9 +1,8 @@
 package com.example.auctiondemo.controller
 
+import com.example.auctiondemo.command.BidProductCommand
 import com.example.auctiondemo.command.CreateProductCommand
 import com.example.auctiondemo.command.StartAuctionCommand
-import com.example.auctiondemo.domain.AuctionProduct
-import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.dto.BidProductRequest
 import com.example.auctiondemo.dto.CreateProductRequest
 import com.example.auctiondemo.dto.StartAuctionRequest
@@ -13,8 +12,6 @@ import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import java.util.concurrent.CompletableFuture
-import java.util.concurrent.Flow.Publisher
-import kotlin.reflect.jvm.internal.impl.load.kotlin.JvmType
 
 @RestController
 class ProductController {
@@ -35,11 +32,11 @@ class ProductController {
         return commandGateway.send<String>(StartAuctionCommand(productId, request.durationMin))
     }
 
-//    @PutMapping("/product/{productId}/bid")
-//    fun bidProduct(@PathVariable("productId") productId: String, @RequestBody request: BidProductRequest): CompletableFuture<String> {
-//        return
-//    }
-//
+    @PutMapping("/product/{productId}/bid")
+    fun bidProduct(@PathVariable("productId") productId: String, @RequestBody request: BidProductRequest): CompletableFuture<String> {
+        return commandGateway.send<String>(BidProductCommand(productId, request.name, request.bidAmount))
+    }
+
 //    @GetMapping("/products")
 //    fun getAllProducts(): Publisher<List<AuctionProduct>> {
 //        return

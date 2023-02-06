@@ -1,12 +1,10 @@
 package com.example.auctiondemo.command
 
 import com.example.auctiondemo.domain.BidStatus
-import org.axonframework.serialization.Revision
-import java.sql.Timestamp
+import java.util.*
 
-@Revision("1.0")
-data class StartAuctionEvent(
+data class StartAuctionEvent (
     val productId: String,
-    val endedDateTime: Timestamp,
+    val endedDateTime: Date,
     val status: BidStatus
 )
