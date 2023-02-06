@@ -4,6 +4,7 @@ import com.example.auctiondemo.api.command.BidProductCommand
 import com.example.auctiondemo.api.command.CreateProductCommand
 import com.example.auctiondemo.api.command.StartAuctionCommand
 import com.example.auctiondemo.api.query.FetchAllProducts
+import com.example.auctiondemo.api.query.FetchProductById
 import com.example.auctiondemo.domain.AuctionProduct
 import com.example.auctiondemo.dto.BidProductRequest
 import com.example.auctiondemo.dto.CreateProductRequest
@@ -47,11 +48,11 @@ class ProductController {
     fun getAllProducts(): CompletableFuture<List<AuctionProduct>> {
         return queryGateway.query(FetchAllProducts(), ResponseTypes.multipleInstancesOf(AuctionProduct:: class.java))
     }
-//
-//    @GetMapping("/product/{productId}")
-//    fun getProductById(): Publisher<AuctionProduct> {
-//        return
-//    }
+
+    @GetMapping("/product/{productId}")
+    fun getProductById(@PathVariable("productId") productId: String): CompletableFuture<AuctionProduct> {
+        return queryGateway.query(FetchProductById(productId), ResponseTypes.instanceOf(AuctionProduct:: class.java))
+    }
 
 
 
