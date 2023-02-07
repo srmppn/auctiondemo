@@ -127,7 +127,7 @@ class ProductAggregate() {
         currentHighestBid = event.currentHighestBid
     }
 
-    fun updateTime(productId: String){
+    fun updateStatus(productId: String){
 
     }
 
