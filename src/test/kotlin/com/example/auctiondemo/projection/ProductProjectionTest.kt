@@ -1,6 +1,9 @@
 package com.example.auctiondemo.projection
 
+import com.example.auctiondemo.api.command.BidProductEvent
 import com.example.auctiondemo.api.command.CreateProductEvent
+import com.example.auctiondemo.api.command.StartAuctionEvent
+import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.jeasy.random.EasyRandom
 import org.junit.jupiter.api.Test
@@ -25,6 +28,28 @@ class ProductProjectionTest {
         assert(result.name == productEvent.name)
         assert(result.description == productEvent.description)
         assert(result.startPrice == productEvent.startPrice)
+    }
+
+    @Test
+    fun whenStartAuction_editDataInDB(){
+        val startAuctionEvent = random.nextObject(StartAuctionEvent:: class.java)
+        productProjection.on(startAuctionEvent)
+        val result = productRepository.findById(startAuctionEvent.productId).block()!!
+        assert(result.productId == startAuctionEvent.productId)
+        assert(result.endedDateTime == startAuctionEvent.endedDateTime)
+        println(startAuctionEvent.toString())
+    }
+
+    @Test
+    fun whenBidProduct_editDataInDB(){
+        val bidProductEvent = random.nextObject(BidProductEvent:: class.java)
+        productProjection.on(bidProductEvent)
+        val result = productRepository.findById(bidProductEvent.productId).block()!!
+        assert(result.productId == bidProductEvent.productId)
+        assert(result.currentBidOwner == bidProductEvent.currentBidOwner)
+        assert(result.currentHighestBid == bidProductEvent.currentHighestBid)
+        println(result)
+        println(bidProductEvent)
     }
 
 }

@@ -4,6 +4,7 @@ import com.example.auctiondemo.api.command.BidProductEvent
 import com.example.auctiondemo.api.command.CreateProductEvent
 import com.example.auctiondemo.api.command.StartAuctionEvent
 import com.example.auctiondemo.domain.AuctionProduct
+import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.eventhandling.EventHandler
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,7 +38,7 @@ class ProductProjection {
     @EventHandler
     fun on(event: StartAuctionEvent){
         productRepository.findById(event.productId)
-            .map { it.copy( status = event.status, endedDateTime = event.endedDateTime)}
+            .map { it.copy( status = BidStatus.STARTED, endedDateTime = event.endedDateTime)}
             .flatMap { productRepository.save(it) }
             .block()
     }
