@@ -1,5 +1,6 @@
 package com.example.auctiondemo.projection
 
+import com.example.auctiondemo.api.command.AuctionEndedEvent
 import com.example.auctiondemo.api.command.BidProductEvent
 import com.example.auctiondemo.api.command.CreateProductEvent
 import com.example.auctiondemo.api.command.StartAuctionEvent
@@ -43,6 +44,14 @@ class ProductProjection {
     fun on (event: BidProductEvent){
         productRepository.findById(event.productId)
             .map { it.copy( currentBidOwner = event.currentBidOwner, currentHighestBid = event.currentHighestBid) }
+            .flatMap { productRepository.save(it) }
+            .block()
+    }
+
+    @EventHandler
+    fun on (event: AuctionEndedEvent){
+        productRepository.findById(event.productId)
+            .map { it.copy( status = event.status) }
             .flatMap { productRepository.save(it) }
             .block()
     }

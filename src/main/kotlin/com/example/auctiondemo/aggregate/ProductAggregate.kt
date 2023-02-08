@@ -54,27 +54,20 @@ class ProductAggregate() {
         name = event.name
         description = event.description
         startPrice = event.startPrice
+        status = BidStatus.NONE
     }
 
     @CommandHandler
     fun handle(command : StartAuctionCommand, deadlineManager: DeadlineManager) : String{
-//        val date = productRepository.findById(command.productId).block()!!.endedDateTime
         if(status == BidStatus.NONE){
-//            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000)).toInstant()
             val endedDate = Instant.now().plusSeconds(command.durationMin*60)
             deadlineManager.schedule(endedDate, AUCTION_DEADLINE)
-            println(endedDate)
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
         } else {
 
             return "The auction is already started. I can't be auctioned twice nor thrice."
         }
-    }
-
-    @DeadlineHandler
-    fun handleAuction() {
-        AggregateLifecycle.apply(AuctionEndedEvent(productId))
     }
 
     @EventSourcingHandler
@@ -84,21 +77,39 @@ class ProductAggregate() {
         status = event.status
     }
 
+    @DeadlineHandler
+    fun handleAuction() {
+        AggregateLifecycle.apply(AuctionEndedEvent(productId, BidStatus.ENDED))
+    }
+
     @EventSourcingHandler
     fun on(event: AuctionEndedEvent) {
-        status = BidStatus.ENDED
+        productId = event.productId
+        status = event.status
     }
 
     @CommandHandler
     fun handle(command: BidProductCommand): String {
-        val product = productRepository.findById(command.productId).block()!!
-        val date = product.endedDateTime
-        if (date == null){
-            return "Sorry, an auction for this product is not started yet"
-        } else if (date.isBefore(Instant.now())) {
-            return "Sorry, an auction for this product is already ended a while ago"
-        } else {
-            val currentHighestBid = product.currentHighestBid
+        println(productId + " " + status)
+//        val product = productRepository.findById(command.productId).block()!!
+//        val date = product.endedDateTime
+//        if (date == null){
+//            return "Sorry, an auction for this product is not started yet"
+//        } else if (date.isBefore(Instant.now())) {
+//            return "Sorry, an auction for this product is already ended a while ago"
+//        } else {
+//            val currentHighestBid = product.currentHighestBid
+//            if(currentHighestBid==null){
+//                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
+//                return "You are the first to bid a product"
+//            } else if (currentHighestBid>=command.currentHighestBid) {
+//                return "The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
+//            } else {
+//                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
+//                return "You are successfully bid a product. You are now the highest!"
+//            }
+//        }
+        if (status == BidStatus.STARTED) {
             if(currentHighestBid==null){
                 AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
                 return "You are the first to bid a product"
@@ -107,7 +118,11 @@ class ProductAggregate() {
             } else {
                 AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
                 return "You are successfully bid a product. You are now the highest!"
-            }
+                }
+        } else if (status == BidStatus.ENDED) {
+            return "Sorry, an auction for this product is already ended a while ago"
+        } else {
+            return "Sorry, an auction for this product is not started yet"
         }
     }
 
