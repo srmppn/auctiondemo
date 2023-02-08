@@ -10,6 +10,7 @@ import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.Date
 
 @Aggregate
@@ -20,7 +21,7 @@ class ProductAggregate() {
     private lateinit var name: String
     private lateinit var description: String
     private lateinit var startPrice: BigDecimal
-    private lateinit var endedDateTime: Date
+    private lateinit var endedDateTime: Instant
 //    private var endedDateTime: Date
     private lateinit var status: BidStatus
     private lateinit var currentBidOwner: String
@@ -53,7 +54,8 @@ class ProductAggregate() {
     fun handle(command : StartAuctionCommand) : String{
         val date = productRepository.findById(command.productId).block()!!.endedDateTime
         if(date == null){
-            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
+//            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000)).toInstant()
+            val endedDate = Instant.now().plusSeconds(command.durationMin*60)
             println(endedDate)
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
@@ -75,7 +77,7 @@ class ProductAggregate() {
         val date = product.endedDateTime
         if (date == null){
             return "Sorry, an auction for this product is not started yet"
-        } else if (date.before(Date())) {
+        } else if (date.isBefore(Instant.now())) {
             return "Sorry, an auction for this product is already ended a while ago"
         } else {
             val currentHighestBid = product.currentHighestBid

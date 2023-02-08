@@ -3,6 +3,7 @@ package com.example.auctiondemo.domain
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.Date
 
 @Document
@@ -14,6 +15,6 @@ data class AuctionProduct (
     val startPrice: BigDecimal,
     var currentBidOwner: String?,
     var currentHighestBid: BigDecimal?,
-    var endedDateTime:Date?,
+    var endedDateTime:Instant?,
     val status: BidStatus
 )
