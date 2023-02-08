@@ -4,6 +4,8 @@ import com.example.auctiondemo.api.command.*
 import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.commandhandling.CommandHandler
+import org.axonframework.deadline.DeadlineManager
+import org.axonframework.deadline.annotation.DeadlineHandler
 import org.axonframework.eventsourcing.EventSourcingHandler
 import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
@@ -15,6 +17,10 @@ import java.util.Date
 
 @Aggregate
 class ProductAggregate() {
+
+    companion object {
+        const val AUCTION_DEADLINE = "auction_deadline"
+    }
 
     @AggregateIdentifier
     private lateinit var productId: String
@@ -51,11 +57,12 @@ class ProductAggregate() {
     }
 
     @CommandHandler
-    fun handle(command : StartAuctionCommand) : String{
-        val date = productRepository.findById(command.productId).block()!!.endedDateTime
-        if(date == null){
+    fun handle(command : StartAuctionCommand, deadlineManager: DeadlineManager) : String{
+//        val date = productRepository.findById(command.productId).block()!!.endedDateTime
+        if(status == BidStatus.NONE){
 //            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000)).toInstant()
             val endedDate = Instant.now().plusSeconds(command.durationMin*60)
+            deadlineManager.schedule(endedDate, AUCTION_DEADLINE)
             println(endedDate)
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
@@ -64,11 +71,21 @@ class ProductAggregate() {
         }
     }
 
+    @DeadlineHandler
+    fun handleAuction() {
+        AggregateLifecycle.apply(AuctionEndedEvent(productId))
+    }
+
     @EventSourcingHandler
     fun oc(event: StartAuctionEvent){
         productId = event.productId
         endedDateTime = event.endedDateTime
         status = event.status
+    }
+
+    @EventSourcingHandler
+    fun on(event: AuctionEndedEvent) {
+        status = BidStatus.ENDED
     }
 
     @CommandHandler
