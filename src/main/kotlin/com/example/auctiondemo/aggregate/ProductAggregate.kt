@@ -68,7 +68,7 @@ class ProductAggregate() {
     fun oc(event: StartAuctionEvent){
         productId = event.productId
         endedDateTime = event.endedDateTime
-        status = BidStatus.STARTED
+        status = event.status
     }
 
     @CommandHandler
