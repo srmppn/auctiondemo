@@ -11,6 +11,9 @@ import org.axonframework.modelling.command.AggregateIdentifier
 import org.axonframework.modelling.command.AggregateLifecycle
 import org.axonframework.spring.stereotype.Aggregate
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
+import java.lang.IllegalStateException
 import java.math.BigDecimal
 import java.time.Instant
 import java.util.Date
@@ -65,8 +68,8 @@ class ProductAggregate() {
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
         } else {
-
-            return "The auction is already started. I can't be auctioned twice nor thrice."
+            throw IllegalStateException("The auction is already started. I can't be auctioned twice nor thrice.")
+//            return "The auction is already started. I can't be auctioned twice nor thrice."
         }
     }
 
@@ -114,15 +117,15 @@ class ProductAggregate() {
                 AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
                 return "You are the first to bid a product"
             } else if (currentHighestBid>=command.currentHighestBid) {
-                return "The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
+                return "Sorry. The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
             } else {
                 AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
-                return "You are successfully bid a product. You are now the highest!"
+                return "You has successfully bid a product. You are now the highest!"
                 }
         } else if (status == BidStatus.ENDED) {
-            return "Sorry, an auction for this product is already ended a while ago"
+            throw IllegalStateException("Sorry, an auction for this product is already ended a while ago")
         } else {
-            return "Sorry, an auction for this product is not started yet"
+            throw IllegalStateException("Sorry, an auction for this product is not started yet")
         }
     }
 
