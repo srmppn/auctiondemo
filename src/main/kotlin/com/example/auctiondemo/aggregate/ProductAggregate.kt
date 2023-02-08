@@ -36,8 +36,7 @@ class ProductAggregate() {
     private lateinit var currentBidOwner: String
     private lateinit var currentHighestBid: BigDecimal
 
-    @Autowired
-    private lateinit var productRepository: AuctionProductRepository
+    private val SECOND_IN_MINUTE = 60L
 
     @CommandHandler
     constructor(command: CreateProductCommand) : this(){
@@ -63,7 +62,7 @@ class ProductAggregate() {
     @CommandHandler
     fun handle(command : StartAuctionCommand, deadlineManager: DeadlineManager) : String{
         if(status == BidStatus.NONE){
-            val endedDate = Instant.now().plusSeconds(command.durationMin*60)
+            val endedDate = Instant.now().plusSeconds(command.durationMin*SECOND_IN_MINUTE)
             deadlineManager.schedule(endedDate, AUCTION_DEADLINE)
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
