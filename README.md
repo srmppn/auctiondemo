@@ -9,3 +9,6 @@
 - **[FINISHED]** *<span style="color:pink; text-decoration: underline">[But might be wrong?]</span>* As a system I should validate whether a bid offer is higher than the current.
 - **[FINISHED]** As a user I should be able to see detail of a product.
 - **[Kindly finished?]** Unit test.
+
+## Mention
+- **Bid status** attribute is quite useless for this version of code.
