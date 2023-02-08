@@ -54,17 +54,6 @@ class ProductAggregate() {
 
     @CommandHandler
     fun handle(command : StartAuctionCommand) : String{
-//        val status = productRepository.findById(command.productId).block()!!.status
-//        if(status == BidStatus.NONE) {
-//            val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
-//            println(endedDate)
-//            AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
-//            return "Auction start!!"
-//        } else if (status == BidStatus.STARTED) {
-//            return "Sorry, but this product is already and currently having an auction."
-//        } else {
-//            return "Sorry, this product's auction is already ended a while ago."
-//        }
         val date = productRepository.findById(command.productId).block()!!.endedDateTime
         if(date == null){
             val endedDate = Date(System.currentTimeMillis() + (command.durationMin * 60 * 1000))
@@ -80,26 +69,11 @@ class ProductAggregate() {
     fun oc(event: StartAuctionEvent){
         productId = event.productId
         endedDateTime = event.endedDateTime
-        status = event.status
+        status = BidStatus.STARTED
     }
 
     @CommandHandler
     fun handle(command: BidProductCommand): String {
-//        val status = productRepository.findById(command.productId).block()!!.status
-//        if (status == BidStatus.STARTED) {
-//            AggregateLifecycle.apply(
-//                BidProductEvent(
-//                    command.productId,
-//                    command.currentBidOwner,
-//                    command.currentHighestBid
-//                )
-//            )
-//            return "You bid a product"
-//        } else if (status == BidStatus.NONE) {
-//            return "Sorry, an auction for this product is not started yet"
-//        } else {
-//            return "Sorry, an auction for this product is already ended a while ago"
-//        }
         val product = productRepository.findById(command.productId).block()!!
         val date = product.endedDateTime
         if (date == null){

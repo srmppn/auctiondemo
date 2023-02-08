@@ -1,10 +1,8 @@
 package com.example.auctiondemo.aggregate
 
-import com.example.auctiondemo.api.command.CreateProductCommand
-import com.example.auctiondemo.api.command.CreateProductEvent
-import com.example.auctiondemo.api.command.StartAuctionCommand
-import com.example.auctiondemo.api.command.StartAuctionEvent
+import com.example.auctiondemo.api.command.*
 import com.example.auctiondemo.domain.BidStatus
+import com.example.auctiondemo.dto.CreateProductRequest
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.axonframework.test.aggregate.AggregateTestFixture
 import org.axonframework.test.aggregate.FixtureConfiguration
@@ -20,6 +18,9 @@ class ProductAggregateTest {
     private lateinit var fixture : FixtureConfiguration<ProductAggregate>
     private val random = EasyRandom()
     private var productId : String = "1234"
+    private var name = "name"
+    private var description = "desc"
+    private var startPrice = BigDecimal(200)
     private var durationMin: Long = 20
 
     @Autowired
@@ -32,9 +33,11 @@ class ProductAggregateTest {
 
     fun createProduct(): TestExecutor<ProductAggregate>{
         val product1 = random.nextObject(CreateProductCommand::class.java)
-            .copy(productId = productId)
-        val product2 = random.nextObject(CreateProductCommand::class.java)
-            .copy(productId = productId)
+            .copy(productId = productId, name = name, description = description, startPrice = startPrice)
+        val product2 = random.nextObject(CreateProductEvent::class.java)
+            .copy(productId = productId, name = name, description = description, startPrice = startPrice)
+        println(product1)
+        println(product2)
         return fixture.given(product1, product2)
     }
 
@@ -55,29 +58,55 @@ class ProductAggregateTest {
 
     @Test
     fun whenStartAuction_shouldPublishEventAndEndedDateAndStatusIsUpdated(){
-        val command1 = random.nextObject(CreateProductCommand:: class.java)
-        val command = random.nextObject(StartAuctionCommand:: class.java)
+        val createEvent = random.nextObject(CreateProductEvent:: class.java)
+            .copy(productId = productId)
+        val startCommand = random.nextObject(StartAuctionCommand:: class.java)
             .copy(productId = productId, durationMin = durationMin)
-        println(random)
         println(productId)
-        println(command.toString())
-        createProduct()
-            .`when`(command)
+        println(createEvent)
+        println(startCommand.toString())
+        fixture.given(createEvent)
+            .`when`(startCommand)
+//            .expectNoEvents()
             .expectEvents(
                 StartAuctionEvent(
-                    productId = command.productId,
+                    productId = productId,
                     endedDateTime = Date(System.currentTimeMillis() + (durationMin*60*1000)),
-                    status = BidStatus.STARTED)
+                    status = BidStatus.STARTED
+                )
             )
-//            .expectState{
-//                assert( it. )
-//            }
+        // Error
+        // One of error is since the created Date != expected Date, there was a slightly differences in milliseconds
+        // Another one is, the StartAuctionCommand is including GET data from repository which has to retrieve from DB
+            // The test one didn't save the data really.  So it is the cause of error.
     }
 
 
     @Test
     fun whenBidProductCorrectly_ShouldUpdatedData(){
+        val createEvent = random.nextObject(CreateProductEvent:: class.java)
+            .copy(productId = productId)
+        val startEvent = random.nextObject(StartAuctionEvent:: class.java)
+            .copy(productId = productId, status = BidStatus.STARTED)
+        val bidCommand = random.nextObject(BidProductCommand:: class.java)
+            .copy(productId = productId)
+        println(createEvent)
+        println(startEvent)
+        println(bidCommand)
+        fixture.given(createEvent, startEvent)
+            .`when`(bidCommand)
+//            .expectNoEvents()
+            .expectEvents(
+                BidProductEvent(
+                    productId = productId,
+                    currentBidOwner = bidCommand.currentBidOwner,
+                    currentHighestBid = bidCommand.currentHighestBid
+                )
+            )
 
+        // Error
+        // Both StartAuctionCommand and BidProductCommand are including GET data from repository which has to retrieve from DB
+            // The test one didn't save the data really. So it is the cause of error.
     }
 
 }
