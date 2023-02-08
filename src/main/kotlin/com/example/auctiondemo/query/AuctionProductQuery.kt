@@ -4,7 +4,6 @@ import com.example.auctiondemo.api.query.FetchAllProducts
 import com.example.auctiondemo.api.query.FetchProductById
 import com.example.auctiondemo.domain.AuctionProduct
 import com.example.auctiondemo.repository.AuctionProductRepository
-import kotlinx.coroutines.reactive.collect
 import org.axonframework.queryhandling.QueryHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component

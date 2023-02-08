@@ -1,17 +1,10 @@
 package com.example.auctiondemo.domain
 
-import com.google.type.DateTime
-import lombok.Getter
-import lombok.Setter
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.math.BigDecimal
-import java.sql.Timestamp
-import java.time.LocalDateTime
 import java.util.Date
 
-@Getter
-@Setter
 @Document
 data class AuctionProduct (
     @Id

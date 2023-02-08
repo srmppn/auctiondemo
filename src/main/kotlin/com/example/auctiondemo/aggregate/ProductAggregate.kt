@@ -37,9 +37,6 @@ class ProductAggregate() {
             command.name,
             command.description,
             command.startPrice,
-//            null,
-//            null,
-//            null,
             BidStatus.NONE)
         )
     }

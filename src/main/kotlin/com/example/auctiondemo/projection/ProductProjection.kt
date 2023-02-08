@@ -17,10 +17,6 @@ class ProductProjection {
     @Autowired
     private lateinit var productRepository: AuctionProductRepository
 
-//    @Autowired
-//    private lateinit var queryUpdateEmitter: QueryUpdateEmitter
-
-
     @EventHandler
     fun on(event: CreateProductEvent){
         val auctionProduct = AuctionProduct(
