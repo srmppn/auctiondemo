@@ -60,6 +60,7 @@ class ProductAggregate() {
             AggregateLifecycle.apply(StartAuctionEvent(command.productId, endedDate, BidStatus.STARTED))
             return "Auction start!!"
         } else {
+
             return "The auction is already started. I can't be auctioned twice nor thrice."
         }
     }
