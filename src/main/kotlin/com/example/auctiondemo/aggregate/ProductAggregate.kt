@@ -91,36 +91,31 @@ class ProductAggregate() {
     }
 
     @CommandHandler
-    fun handle(command: BidProductCommand): String {
-        println(productId + " " + status)
-//        val product = productRepository.findById(command.productId).block()!!
-//        val date = product.endedDateTime
-//        if (date == null){
-//            return "Sorry, an auction for this product is not started yet"
-//        } else if (date.isBefore(Instant.now())) {
-//            return "Sorry, an auction for this product is already ended a while ago"
-//        } else {
-//            val currentHighestBid = product.currentHighestBid
-//            if(currentHighestBid==null){
-//                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
-//                return "You are the first to bid a product"
-//            } else if (currentHighestBid>=command.currentHighestBid) {
-//                return "The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
-//            } else {
-//                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
-//                return "You are successfully bid a product. You are now the highest!"
-//            }
-//        }
+    fun handle(command: BidProductCommand): String{
         if (status == BidStatus.STARTED) {
-            if(currentHighestBid==null){
-                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
-                return "You are the first to bid a product"
-            } else if (currentHighestBid>=command.currentHighestBid) {
-                return "Sorry. The others has higher bid than you! Now highest bid is " + currentHighestBid + "!"
-            } else {
-                AggregateLifecycle.apply(BidProductEvent(command.productId,command.currentBidOwner,command.currentHighestBid))
-                return "You has successfully bid a product. You are now the highest!"
+            try {
+                if (currentHighestBid >= command.currentHighestBid) {
+                    return "Sorry but the others has higher bid than you. Now highest bid is " + currentHighestBid + "! Raise for it!"
+                } else {
+                    AggregateLifecycle.apply(
+                        BidProductEvent(
+                            command.productId,
+                            command.currentBidOwner,
+                            command.currentHighestBid
+                        )
+                    )
+                    return "You are successfully bid a product. You are now the highest!"
                 }
+            } catch (ex: Exception) {
+                AggregateLifecycle.apply(
+                    BidProductEvent(
+                        command.productId,
+                        command.currentBidOwner,
+                        command.currentHighestBid
+                    )
+                )
+                return "You are the first to bid a product"
+            }
         } else if (status == BidStatus.ENDED) {
             throw IllegalStateException("Sorry, an auction for this product is already ended a while ago")
         } else {

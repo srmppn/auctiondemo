@@ -4,6 +4,7 @@ import com.example.auctiondemo.domain.BidStatus
 import com.google.type.DateTime
 import org.axonframework.serialization.Revision
 import java.math.BigDecimal
+import java.time.Instant
 
 @Revision("1.0")
 data class CreateProductEvent(
