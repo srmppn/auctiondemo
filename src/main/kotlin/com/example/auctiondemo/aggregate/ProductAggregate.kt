@@ -31,7 +31,6 @@ class ProductAggregate() {
     private lateinit var description: String
     private lateinit var startPrice: BigDecimal
     private lateinit var endedDateTime: Instant
-//    private var endedDateTime: Date
     private lateinit var status: BidStatus
     private lateinit var currentBidOwner: String
     private lateinit var currentHighestBid: BigDecimal
@@ -68,7 +67,6 @@ class ProductAggregate() {
             return "Auction start!!"
         } else {
             throw IllegalStateException("The auction is already started. I can't be auctioned twice nor thrice.")
-//            return "The auction is already started. I can't be auctioned twice nor thrice."
         }
     }
 

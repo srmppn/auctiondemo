@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
+import java.time.Instant
 import java.util.*
 
 class ProductAggregateTest {
@@ -67,18 +68,16 @@ class ProductAggregateTest {
         println(startCommand.toString())
         fixture.given(createEvent)
             .`when`(startCommand)
-//            .expectNoEvents()
+            .expectNoEvents()
             .expectEvents(
                 StartAuctionEvent(
                     productId = productId,
-                    endedDateTime = Date(System.currentTimeMillis() + (durationMin*60*1000)),
+                    endedDateTime = Instant.now().plusSeconds(durationMin*60),
                     status = BidStatus.STARTED
                 )
             )
         // Error
         // One of error is since the created Date != expected Date, there was a slightly differences in milliseconds
-        // Another one is, the StartAuctionCommand is including GET data from repository which has to retrieve from DB
-            // The test one didn't save the data really.  So it is the cause of error.
     }
 
 
