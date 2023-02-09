@@ -1,13 +1,11 @@
 package com.example.auctiondemo.api.command
 
 import com.example.auctiondemo.domain.BidStatus
-import com.google.type.DateTime
 import org.axonframework.serialization.Revision
 import java.math.BigDecimal
-import java.time.Instant
 
 @Revision("1.0")
-data class CreateProductEvent(
+data class ProductCreatedEvent(
     val productId: String,
     val name: String,
     val description: String,

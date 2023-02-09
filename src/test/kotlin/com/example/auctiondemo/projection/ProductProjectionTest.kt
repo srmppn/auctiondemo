@@ -1,8 +1,8 @@
 package com.example.auctiondemo.projection
 
-import com.example.auctiondemo.api.command.BidProductEvent
-import com.example.auctiondemo.api.command.CreateProductEvent
-import com.example.auctiondemo.api.command.StartAuctionEvent
+import com.example.auctiondemo.api.command.ProductBiddenEvent
+import com.example.auctiondemo.api.command.ProductCreatedEvent
+import com.example.auctiondemo.api.command.AuctionStartedEvent
 import com.example.auctiondemo.domain.BidStatus
 import com.example.auctiondemo.repository.AuctionProductRepository
 import org.jeasy.random.EasyRandom
@@ -21,7 +21,7 @@ class ProductProjectionTest {
     val random = EasyRandom()
     @Test
     fun whenCreateProduct_addDataToDB(){
-        val productEvent = random.nextObject(CreateProductEvent:: class.java)
+        val productEvent = random.nextObject(ProductCreatedEvent:: class.java)
         productProjection.on(productEvent)
         val result = productRepository.findById(productEvent.productId).block()!!
         assert(result.productId == productEvent.productId)
@@ -32,7 +32,7 @@ class ProductProjectionTest {
 
     @Test
     fun whenStartAuction_editDataInDB(){
-        val startAuctionEvent = random.nextObject(StartAuctionEvent:: class.java)
+        val startAuctionEvent = random.nextObject(AuctionStartedEvent:: class.java)
             .copy(status = BidStatus.STARTED)
         productProjection.on(startAuctionEvent)
         val result = productRepository.findById(startAuctionEvent.productId).block()!!
@@ -43,7 +43,7 @@ class ProductProjectionTest {
 
     @Test
     fun whenBidProduct_editDataInDB(){
-        val bidProductEvent = random.nextObject(BidProductEvent:: class.java)
+        val bidProductEvent = random.nextObject(ProductBiddenEvent:: class.java)
         productProjection.on(bidProductEvent)
         val result = productRepository.findById(bidProductEvent.productId).block()!!
         assert(result.productId == bidProductEvent.productId)

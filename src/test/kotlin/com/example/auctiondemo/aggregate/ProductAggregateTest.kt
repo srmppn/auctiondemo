@@ -27,7 +27,7 @@ class ProductAggregateTest {
         fixture.givenNoPriorActivity()
             .`when`(command)
             .expectEvents(
-                CreateProductEvent(
+                ProductCreatedEvent(
                     productId = command.productId,
                     name = command.name,
                     description = command.description,
@@ -38,14 +38,14 @@ class ProductAggregateTest {
 
     @Test
     fun whenStartAuction_shouldPublishEventAndEndedDateAndStatusIsUpdated(){
-        val createEvent = random.nextObject(CreateProductEvent:: class.java)
+        val createEvent = random.nextObject(ProductCreatedEvent:: class.java)
             .copy(productId = productId)
         val startCommand = random.nextObject(StartAuctionCommand:: class.java)
             .copy(productId = productId, durationMin = durationMin)
         fixture.given(createEvent)
             .`when`(startCommand)
             .expectEvents(
-                StartAuctionEvent(
+                AuctionStartedEvent(
                     productId = productId,
                     endedDateTime = Instant.now().plusSeconds(durationMin*60),
                     status = BidStatus.STARTED
@@ -58,16 +58,16 @@ class ProductAggregateTest {
 
     @Test
     fun whenBidProductCorrectly_ShouldUpdatedData(){
-        val createEvent = random.nextObject(CreateProductEvent:: class.java)
+        val createEvent = random.nextObject(ProductCreatedEvent:: class.java)
             .copy(productId = productId)
-        val startEvent = random.nextObject(StartAuctionEvent:: class.java)
+        val startEvent = random.nextObject(AuctionStartedEvent:: class.java)
             .copy(productId = productId, status = BidStatus.STARTED)
         val bidCommand = random.nextObject(BidProductCommand:: class.java)
             .copy(productId = productId)
         fixture.given(createEvent, startEvent)
             .`when`(bidCommand)
             .expectEvents(
-                BidProductEvent(
+                ProductBiddenEvent(
                     productId = productId,
                     currentBidOwner = bidCommand.currentBidOwner,
                     currentHighestBid = bidCommand.currentHighestBid

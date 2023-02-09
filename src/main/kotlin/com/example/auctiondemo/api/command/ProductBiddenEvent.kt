@@ -4,7 +4,7 @@ import org.axonframework.serialization.Revision
 import java.math.BigDecimal
 
 @Revision("1.0")
-data class BidProductEvent(
+data class ProductBiddenEvent(
     val productId: String,
     val currentBidOwner: String,
     val currentHighestBid: BigDecimal
