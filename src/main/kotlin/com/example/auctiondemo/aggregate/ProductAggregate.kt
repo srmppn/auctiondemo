@@ -124,9 +124,17 @@ class ProductAggregate() {
     @CommandHandler
     fun handle(command: BidProductCommand): String{
         if(status==BidStatus.STARTED){
-            if (command.currentHighestBid > currentHighestBid){
+            if ((command.currentHighestBid > currentHighestBid) &&
+                (command.currentHighestBid > startPrice)){
+                    AggregateLifecycle.apply(
+                        ProductBiddenEvent(
+                            command.productId,
+                            command.currentBidOwner,
+                            command.currentHighestBid
+                        )
+                    )
                 return "You successfully bid a product. You are now the highest!"
-            } else if ((command.currentHighestBid > startPrice)){
+            } else if (command.currentHighestBid < startPrice){
                 throw IllegalStateException("Sorry, you bid less price than start price.")}
             else {
                 throw IllegalStateException(
