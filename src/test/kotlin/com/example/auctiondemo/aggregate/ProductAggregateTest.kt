@@ -77,6 +77,16 @@ class ProductAggregateTest {
         // created Date != expected Date, there was a slightly differences in milliseconds
     }
 
+    @Test
+    fun whenStartAuctionMultipleTime_shouldThrowError(){
+        val startCommand = random.nextObject(StartAuctionCommand:: class.java)
+            .copy(productId = productId, durationMin = durationMin)
+        fixture.given(createProductEvent(), startAuctionEvent())
+            .`when`(startCommand)
+            .expectNoEvents()
+            .expectExceptionMessage("The auction is already started. I can't be auctioned twice nor thrice.")
+    }
+
 
     @Test
     fun whenBidProductCorrectly_shouldUpdatedData(){

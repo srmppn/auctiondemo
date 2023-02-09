@@ -83,44 +83,6 @@ class ProductAggregate() {
         status = event.status
     }
 
-//    @CommandHandler
-//    fun handle(command: BidProductCommand): String{
-//        if (status == BidStatus.STARTED) {
-//            try {
-//                if (currentHighestBid >= command.currentHighestBid) {
-//                    throw IllegalStateException(
-//                        "Sorry but the others has higher bid than you. Now highest bid is " + currentHighestBid + "! Raise for it!")
-//                } else {
-//                    AggregateLifecycle.apply(
-//                        ProductBiddenEvent(
-//                            command.productId,
-//                            command.currentBidOwner,
-//                            command.currentHighestBid
-//                        )
-//                    )
-//                    return "You are successfully bid a product. You are now the highest!"
-//                }
-//            } catch (ex: Exception) {
-//                if (command.currentHighestBid>startPrice) {
-//                    AggregateLifecycle.apply(
-//                        ProductBiddenEvent(
-//                            command.productId,
-//                            command.currentBidOwner,
-//                            command.currentHighestBid
-//                        )
-//                    )
-//                    return "You are the first to bid a product"
-//                } else {
-//                    throw IllegalStateException("Sorry, you bid less price than start price.")
-//                }
-//            }
-//        } else if (status == BidStatus.ENDED) {
-//            throw IllegalStateException("Sorry, an auction for this product is already ended a while ago")
-//        } else {
-//            throw IllegalStateException("Sorry, an auction for this product is not started yet")
-//        }
-//    }
-
     @CommandHandler
     fun handle(command: BidProductCommand): String{
         if(status==BidStatus.STARTED){
