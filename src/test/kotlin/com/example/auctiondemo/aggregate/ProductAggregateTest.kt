@@ -68,7 +68,6 @@ class ProductAggregateTest {
         println(startCommand.toString())
         fixture.given(createEvent)
             .`when`(startCommand)
-            .expectNoEvents()
             .expectEvents(
                 StartAuctionEvent(
                     productId = productId,
@@ -77,7 +76,7 @@ class ProductAggregateTest {
                 )
             )
         // Error
-        // One of error is since the created Date != expected Date, there was a slightly differences in milliseconds
+        // created Date != expected Date, there was a slightly differences in milliseconds
     }
 
 
@@ -102,10 +101,6 @@ class ProductAggregateTest {
                     currentHighestBid = bidCommand.currentHighestBid
                 )
             )
-
-        // Error
-        // Both StartAuctionCommand and BidProductCommand are including GET data from repository which has to retrieve from DB
-            // The test one didn't save the data really. So it is the cause of error.
     }
 
 }
