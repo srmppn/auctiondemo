@@ -9,6 +9,7 @@ import org.jeasy.random.EasyRandom
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import java.math.BigDecimal
 
 @SpringBootTest
 class ProductProjectionTest {
@@ -18,10 +19,14 @@ class ProductProjectionTest {
     @Autowired
     private lateinit var productProjection: ProductProjection
 
-    val random = EasyRandom()
+    private var random = EasyRandom()
+    private var startPrice: BigDecimal = BigDecimal(100)
+    private var normalBid: BigDecimal = BigDecimal(120)
+
     @Test
     fun whenCreateProduct_addDataToDB(){
         val productEvent = random.nextObject(ProductCreatedEvent:: class.java)
+            .copy(startPrice = startPrice)
         productProjection.on(productEvent)
         val result = productRepository.findById(productEvent.productId).block()!!
         assert(result.productId == productEvent.productId)
@@ -44,11 +49,13 @@ class ProductProjectionTest {
     @Test
     fun whenBidProduct_editDataInDB(){
         val bidProductEvent = random.nextObject(ProductBiddenEvent:: class.java)
+            .copy(currentHighestBid = normalBid)
         productProjection.on(bidProductEvent)
         val result = productRepository.findById(bidProductEvent.productId).block()!!
         assert(result.productId == bidProductEvent.productId)
         assert(result.currentBidOwner == bidProductEvent.currentBidOwner)
         assert(result.currentHighestBid == bidProductEvent.currentHighestBid)
     }
+
 
 }

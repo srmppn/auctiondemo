@@ -96,7 +96,7 @@ class ProductAggregate() {
                         )
                     )
                 return "You successfully bid a product. You are now the highest!"
-            } else if (command.currentHighestBid < startPrice){
+            } else if (command.currentHighestBid <= startPrice){
                 throw IllegalStateException("Sorry, you bid less price than start price.")}
             else {
                 throw IllegalStateException(
