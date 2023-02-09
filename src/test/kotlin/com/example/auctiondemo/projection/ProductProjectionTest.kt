@@ -17,7 +17,6 @@ class ProductProjectionTest {
     private lateinit var productRepository: AuctionProductRepository
     @Autowired
     private lateinit var productProjection: ProductProjection
-    private val durationMin = 20
 
     val random = EasyRandom()
     @Test
@@ -40,7 +39,6 @@ class ProductProjectionTest {
         assert(result.productId == startAuctionEvent.productId)
         assert(result.endedDateTime == startAuctionEvent.endedDateTime)
         assert(result.status == startAuctionEvent.status)
-        println(startAuctionEvent.toString())
     }
 
     @Test
@@ -51,8 +49,6 @@ class ProductProjectionTest {
         assert(result.productId == bidProductEvent.productId)
         assert(result.currentBidOwner == bidProductEvent.currentBidOwner)
         assert(result.currentHighestBid == bidProductEvent.currentHighestBid)
-        println(result)
-        println(bidProductEvent)
     }
 
 }

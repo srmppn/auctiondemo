@@ -77,7 +77,7 @@ class ProductAggregate() {
         status = event.status
     }
 
-    @DeadlineHandler
+    @DeadlineHandler (deadlineName = AUCTION_DEADLINE)
     fun handleAuction() {
         AggregateLifecycle.apply(AuctionEndedEvent(productId, BidStatus.ENDED))
     }

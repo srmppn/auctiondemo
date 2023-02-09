@@ -14,6 +14,4 @@ class AuctiondemoApplication
 fun main(args: Array<String>) {
 	runApplication<AuctiondemoApplication>(*args)
 
-//	val instant = Date().toInstant()
-//	println(instant)
 }
